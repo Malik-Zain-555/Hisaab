@@ -1,0 +1,223 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile in Hisaab",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["owner", "friend"] },
+        "notificationPref": { "type": "string", "enum": ["instant", "daily", "off"] },
+        "paymentMethods": { "type": "array" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Month": {
+      "title": "Month",
+      "description": "Monthly budget and wallet tracking",
+      "type": "object",
+      "properties": {
+        "monthKey": { "type": "string" },
+        "budget": { "type": "number" },
+        "carryOver": { "type": "number" },
+        "openingBalance": { "type": "number" },
+        "fixedExpenses": { "type": "array" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["monthKey", "budget"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "Daily shared or personal expense record",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200 },
+        "amount": { "type": "number" },
+        "category": { "type": "string" },
+        "date": { "type": "string" },
+        "paidBy": { "type": "string" },
+        "status": { "type": "string", "enum": ["approved", "pending", "rejected"] },
+        "dispute": { "type": "object" },
+        "activityLog": { "type": "array" },
+        "recurringBillId": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "amount", "category", "date", "paidBy", "createdBy"]
+    },
+    "LedgerEntry": {
+      "title": "LedgerEntry",
+      "description": "Itemized friend balance entry for immutable accounting",
+      "type": "object",
+      "properties": {
+        "friendId": { "type": "string" },
+        "date": { "type": "string" },
+        "label": { "type": "string", "maxLength": 200 },
+        "amount": { "type": "number" },
+        "type": { "type": "string", "enum": ["owes", "adjustment", "payment"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["friendId", "date", "label", "amount", "type"]
+    },
+    "PaymentClaim": {
+      "title": "PaymentClaim",
+      "description": "Claim submitted by a friend when settling debt",
+      "type": "object",
+      "properties": {
+        "friendId": { "type": "string" },
+        "amount": { "type": "number" },
+        "note": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "rejected"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["friendId", "amount", "status"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Real-time group chat message",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string", "maxLength": 100 },
+        "text": { "type": "string", "maxLength": 2000 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "text"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "Inline discussion comment on expense or ledger entry",
+      "type": "object",
+      "properties": {
+        "targetId": { "type": "string" },
+        "targetType": { "type": "string", "enum": ["expense", "ledger"] },
+        "userId": { "type": "string" },
+        "userName": { "type": "string", "maxLength": 100 },
+        "text": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["targetId", "userId", "text"]
+    },
+    "Reaction": {
+      "title": "Reaction",
+      "description": "Emoji reaction on item",
+      "type": "object",
+      "properties": {
+        "targetId": { "type": "string" },
+        "emoji": { "type": "string", "maxLength": 10 },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["targetId", "emoji", "userId"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "In-app notifications",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string", "maxLength": 150 },
+        "body": { "type": "string", "maxLength": 500 },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "title", "body", "read"]
+    },
+    "MailQueue": {
+      "title": "MailQueue",
+      "description": "Email queue processed by the Owner session via Gmail API",
+      "type": "object",
+      "properties": {
+        "to": { "type": "string" },
+        "subject": { "type": "string", "maxLength": 200 },
+        "status": { "type": "string", "enum": ["queued", "sent", "failed"] },
+        "attempts": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["to", "subject", "status"]
+    },
+    "ShareLink": {
+      "title": "ShareLink",
+      "description": "Tokenized read-only statement links",
+      "type": "object",
+      "properties": {
+        "token": { "type": "string" },
+        "friendId": { "type": "string" },
+        "revoked": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["token", "friendId", "revoked"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Audit record of expense and balance modifications",
+      "type": "object",
+      "properties": {
+        "action": { "type": "string" },
+        "entityType": { "type": "string" },
+        "entityId": { "type": "string" },
+        "performedBy": { "type": "string" },
+        "details": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["action", "entityType", "entityId", "performedBy"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles and settings"
+    },
+    "/months/{monthId}": {
+      "schema": { "$ref": "#/entities/Month" },
+      "description": "Monthly budgets and carryover records"
+    },
+    "/expenses/{expenseId}": {
+      "schema": { "$ref": "#/entities/Expense" },
+      "description": "Shared and individual expenses"
+    },
+    "/ledgerEntries/{entryId}": {
+      "schema": { "$ref": "#/entities/LedgerEntry" },
+      "description": "Friend ledger entries tracking who owes what"
+    },
+    "/paymentClaims/{claimId}": {
+      "schema": { "$ref": "#/entities/PaymentClaim" },
+      "description": "Payment confirmations submitted by friends"
+    },
+    "/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/Message" },
+      "description": "Group chat messages"
+    },
+    "/comments/{commentId}": {
+      "schema": { "$ref": "#/entities/Comment" },
+      "description": "Comments on expenses and ledger entries"
+    },
+    "/reactions/{reactionId}": {
+      "schema": { "$ref": "#/entities/Reaction" },
+      "description": "Emoji reactions"
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "User in-app notifications"
+    },
+    "/mailQueue/{mailId}": {
+      "schema": { "$ref": "#/entities/MailQueue" },
+      "description": "Outgoing email notifications"
+    },
+    "/shareLinks/{linkId}": {
+      "schema": { "$ref": "#/entities/ShareLink" },
+      "description": "Public statement share tokens"
+    },
+    "/auditLog/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Immutable audit log"
+    }
+  }
+}

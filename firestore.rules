@@ -1,0 +1,143 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Usernames (unique claim, permanent)
+    match /usernames/{username} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // Public Profiles
+    match /publicProfiles/{userId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Friend Requests
+    match /friendRequests/{requestId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Friendships
+    match /friendships/{pairId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Direct Message Threads
+    match /dmThreads/{pairId} {
+      allow read, write: if isSignedIn();
+
+      // Messages in DM Thread
+      match /messages/{messageId} {
+        allow read, write: if isSignedIn();
+      }
+    }
+
+    // Custom Friends
+    match /customFriends/{friendId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Secure Statement Share Links
+    // Unauthenticated users can only GET by exact token when revoked == false
+    // Listing and write allowed for signed-in users. Nothing else readable without sign-in.
+    match /shareLinks/{token} {
+      allow get: if (resource.data.revoked == false) || isSignedIn();
+      allow list: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // Months (budget & monthly records)
+    match /months/{monthId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // Expenses
+    match /expenses/{expenseId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Ledger Entries (visible to Owner and friends)
+    match /ledgerEntries/{entryId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Payment Claims
+    match /paymentClaims/{claimId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Squad / Group Chat Messages
+    match /messages/{messageId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Squad Group Configuration & Permissions
+    match /squadGroup/{groupId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Squad Invitations
+    match /squadInvitations/{inviteId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Email Invitations
+    match /emailInvites/{inviteId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Comments
+    match /comments/{commentId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Reactions
+    match /reactions/{reactionId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // In-app Notifications
+    match /notifications/{notificationId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Mail Queue
+    match /mailQueue/{mailId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Audit Log
+    match /auditLog/{logId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Presence & Typing Status
+    match /typingStatus/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // FCM Device Push Tokens
+    match /fcmTokens/{tokenId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Connection test document
+    match /test/{docId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+  }
+}

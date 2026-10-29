@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="tileBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFDF9" />
+      <stop offset="100%" stop-color="#F3EFE6" />
+    </linearGradient>
+    <linearGradient id="coinGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE066" />
+      <stop offset="55%" stop-color="#FFC83D" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+    <linearGradient id="coinInner" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E133A" />
+      <stop offset="100%" stop-color="#120B24" />
+    </linearGradient>
+  </defs>
+
+  <!-- Crisp Light Rounded Tile -->
+  <rect x="16" y="16" width="480" height="480" rx="116" fill="url(#tileBg)" stroke="#E5DEC9" stroke-width="8" />
+
+  <!-- Outer Gold Coin Rim -->
+  <circle cx="256" cy="256" r="184" fill="url(#coinGold)" />
+  <circle cx="256" cy="256" r="164" fill="none" stroke="#FFFBEB" stroke-opacity="0.65" stroke-width="6" stroke-dasharray="18 12" />
+
+  <!-- Inner Deep Violet Core -->
+  <circle cx="256" cy="256" r="142" fill="url(#coinInner)" />
+
+  <!-- Emerald Spark Accent -->
+  <circle cx="256" cy="142" r="12" fill="#2EF2A0" />
+
+  <!-- Bold Hisaab 'H' + Rupee Crossbar Emblem -->
+  <g fill="#2EF2A0">
+    <rect x="176" y="176" width="38" height="160" rx="19" />
+    <rect x="298" y="176" width="38" height="160" rx="19" />
+    <rect x="196" y="238" width="120" height="36" rx="18" fill="#FFC83D" />
+  </g>
+</svg>

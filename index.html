@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function() {
+        // Intercept Vite HMR / ping WebSockets in sandboxed iframe where HMR is disabled
+        var OrigWebSocket = window.WebSocket;
+        if (OrigWebSocket) {
+          var PatchedWebSocket = function(url, protocols) {
+            var protoStr = Array.isArray(protocols) ? protocols.join(',') : String(protocols || '');
+            var urlStr = String(url || '');
+            if (
+              protoStr.indexOf('vite-hmr') !== -1 ||
+              protoStr.indexOf('vite-ping') !== -1 ||
+              urlStr.indexOf('token=') !== -1
+            ) {
+              var fakeTarget = new EventTarget();
+              fakeTarget.readyState = 1;
+              fakeTarget.send = function() {};
+              fakeTarget.close = function() {};
+              setTimeout(function() {
+                try {
+                  var openEvt = new Event('open');
+                  if (typeof fakeTarget.onopen === 'function') fakeTarget.onopen(openEvt);
+                  fakeTarget.dispatchEvent(openEvt);
+                } catch (_) {}
+              }, 10);
+              return fakeTarget;
+            }
+            return protocols !== undefined
+              ? new OrigWebSocket(url, protocols)
+              : new OrigWebSocket(url);
+          };
+          PatchedWebSocket.prototype = OrigWebSocket.prototype;
+          PatchedWebSocket.CONNECTING = OrigWebSocket.CONNECTING;
+          PatchedWebSocket.OPEN = OrigWebSocket.OPEN;
+          PatchedWebSocket.CLOSING = OrigWebSocket.CLOSING;
+          PatchedWebSocket.CLOSED = OrigWebSocket.CLOSED;
+          window.WebSocket = PatchedWebSocket;
+        }
+
+        // Suppress Vite websocket & HMR closed errors which are expected in sandbox iframe
+        var isWsError = function(str) {
+          if (!str) return false;
+          var s = String(str).toLowerCase();
+          return s.indexOf('websocket') !== -1 ||
+                 s.indexOf('failed to connect to websocket') !== -1 ||
+                 s.indexOf('vite:ws') !== -1 ||
+                 s.indexOf('websocket closed without opened') !== -1;
+        };
+
+        var origError = console.error;
+        console.error = function() {
+          var args = Array.prototype.slice.call(arguments);
+          var str = args.map(function(a) { return String((a && (a.stack || a.message)) || a || ''); }).join(' ');
+          if (isWsError(str)) {
+            return;
+          }
+          return origError.apply(console, arguments);
+        };
+
+        var origWarn = console.warn;
+        console.warn = function() {
+          var args = Array.prototype.slice.call(arguments);
+          var str = args.map(function(a) { return String((a && (a.stack || a.message)) || a || ''); }).join(' ');
+          if (isWsError(str)) {
+            return;
+          }
+          return origWarn.apply(console, arguments);
+        };
+
+        window.addEventListener('error', function(e) {
+          var msg = (e && (e.message || (e.error && e.error.message))) || '';
+          if (isWsError(msg)) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(e) {
+          var reason = e ? e.reason : '';
+          var msg = typeof reason === 'string' ? reason : (reason && (reason.message || reason.stack)) || '';
+          if (isWsError(msg)) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+
+        // Remove vite error overlay if it attempts to display websocket closed
+        var observer = new MutationObserver(function(mutations) {
+          var overlay = document.querySelector('vite-error-overlay');
+          if (overlay) {
+            var text = overlay.shadowRoot ? overlay.shadowRoot.textContent : overlay.textContent;
+            if (isWsError(text)) {
+              overlay.remove();
+            }
+          }
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+      })();
+    </script>
+    <title>Hisaab</title>
+    <meta name="description" content="Hisaab — Shared Expense Tracker, Smart Group Debt Simplifier & Khata Ledger" />
+    <link rel="canonical" href="https://ais-pre-fpw2tpblkoiwuedaoanbgs-742916804260.asia-southeast1.run.app/" />
+    <meta property="og:title" content="Hisaab" />
+    <meta property="og:description" content="Hisaab — Shared Expense Tracker, Smart Group Debt Simplifier & Khata Ledger" />
+    <meta property="og:url" content="https://ais-pre-fpw2tpblkoiwuedaoanbgs-742916804260.asia-southeast1.run.app/" />
+    <meta property="og:site_name" content="Hisaab" />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Hisaab" />
+    <meta name="twitter:description" content="Hisaab — Shared Expense Tracker, Smart Group Debt Simplifier & Khata Ledger" />
+    <meta name="twitter:image" content="/og-image.png" />
+    <meta name="theme-color" content="#0B0714" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F3EFFC" media="(prefers-color-scheme: light)" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Hisaab" />
+
+    <!-- Favicons, Apple Touch Icon & Manifest -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Preload Self-Hosted WOFF2 Fonts -->
+    <link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body class="bg-[#0B0714] text-[#FFF8F0] antialiased selection:bg-[#2EF2A0]/25 selection:text-[#2EF2A0] min-h-screen overflow-x-hidden">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
